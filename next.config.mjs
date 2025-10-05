@@ -11,7 +11,12 @@ const nextConfig = {
     },
   },
   images: {
-    domains: ["fakestoreapi.com", "images.unsplash.com", "via.placeholder.com"],
+    domains: [
+      "fakestoreapi.com",
+      "images.unsplash.com",
+      "via.placeholder.com",
+      "cdn.dummyjson.com",
+    ],
     remotePatterns: [
       {
         protocol: "https",
@@ -20,6 +25,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.dummyjson.com",
       },
     ],
   },

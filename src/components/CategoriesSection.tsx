@@ -10,40 +10,40 @@ import { Card, CardContent } from "@/components/ui/card";
 const CategoriesSection = () => {
   const categories = [
     {
-      id: "electronics",
-      name: "Electronics",
-      description: "Latest gadgets & tech",
+      id: "beauty",
+      name: "Beauty",
+      description: "Cosmetics & skincare",
       image:
-        "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&h=300&fit=crop",
-      href: "/products/electronics",
-      gradient: "from-blue-500 to-cyan-500",
+        "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=300&fit=crop",
+      href: "/categories/beauty",
+      gradient: "from-pink-500 to-rose-500",
     },
     {
-      id: "jewelery",
-      name: "Jewelry",
-      description: "Elegant accessories",
+      id: "fragrances",
+      name: "Fragrances",
+      description: "Luxury perfumes",
       image:
-        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop",
-      href: "/products/jewelery",
-      gradient: "from-purple-500 to-pink-500",
+        "https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&h=300&fit=crop",
+      href: "/categories/fragrances",
+      gradient: "from-purple-500 to-violet-500",
     },
     {
-      id: "men's clothing",
-      name: "Men's Fashion",
-      description: "Stylish men's wear",
+      id: "furniture",
+      name: "Furniture",
+      description: "Modern home decor",
       image:
-        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop",
-      href: "/products/men's clothing",
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
+      href: "/categories/furniture",
+      gradient: "from-amber-500 to-orange-500",
+    },
+    {
+      id: "groceries",
+      name: "Groceries",
+      description: "Fresh food & essentials",
+      image:
+        "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop",
+      href: "/categories/groceries",
       gradient: "from-green-500 to-emerald-500",
-    },
-    {
-      id: "women's clothing",
-      name: "Women's Fashion",
-      description: "Trendy women's wear",
-      image:
-        "https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&h=300&fit=crop",
-      href: "/products/women's clothing",
-      gradient: "from-red-500 to-pink-500",
     },
   ];
 
@@ -116,13 +116,13 @@ const CategoriesSection = () => {
                         className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg"
                       >
                         <span className="text-2xl">
-                          {category.id === "electronics"
-                            ? "💻"
-                            : category.id === "jewelery"
-                            ? "💍"
-                            : category.id === "men's clothing"
-                            ? "👔"
-                            : "👗"}
+                          {category.id === "beauty"
+                            ? "�"
+                            : category.id === "fragrances"
+                            ? "🌸"
+                            : category.id === "furniture"
+                            ? "�️"
+                            : "�"}
                         </span>
                       </motion.div>
                     </div>

@@ -2,23 +2,56 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShoppingCart, Search, User, Heart, Menu, X } from "lucide-react";
-import { useState } from "react";
+import {
+  ShoppingCart,
+  Search,
+  User,
+  Heart,
+  Menu,
+  X,
+  ChevronDown,
+} from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/lib/store";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const totalItems = useCartStore((state) => state.getTotalItems());
+  const categoriesRef = useRef<HTMLDivElement>(null);
+
+  const categories = [
+    { name: "Beauty", href: "/categories/beauty", icon: "💄" },
+    { name: "Fragrances", href: "/categories/fragrances", icon: "🌸" },
+    { name: "Furniture", href: "/categories/furniture", icon: "🛋️" },
+    { name: "Groceries", href: "/categories/groceries", icon: "🛒" },
+  ];
 
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/products", label: "Products" },
-    { href: "/categories", label: "Categories" },
     { href: "/deals", label: "Deals" },
   ];
+
+  // Close categories dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        categoriesRef.current &&
+        !categoriesRef.current.contains(event.target as Node)
+      ) {
+        setIsCategoriesOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <motion.header
@@ -48,6 +81,51 @@ const Header = () => {
               {item.label}
             </Link>
           ))}
+
+          {/* Categories Dropdown */}
+          <div className="relative" ref={categoriesRef}>
+            <button
+              onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+              className="flex items-center space-x-1 text-sm font-medium transition-colors hover:text-primary"
+            >
+              <span>Categories</span>
+              <ChevronDown
+                className={`w-4 h-4 transition-transform ${
+                  isCategoriesOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {isCategoriesOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+              >
+                <Link
+                  href="/categories"
+                  className="flex items-center px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
+                  onClick={() => setIsCategoriesOpen(false)}
+                >
+                  <span className="mr-3">📂</span>
+                  All Categories
+                </Link>
+                <div className="border-t border-gray-100 my-1" />
+                {categories.map((category) => (
+                  <Link
+                    key={category.href}
+                    href={category.href}
+                    className="flex items-center px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
+                    onClick={() => setIsCategoriesOpen(false)}
+                  >
+                    <span className="mr-3">{category.icon}</span>
+                    {category.name}
+                  </Link>
+                ))}
+              </motion.div>
+            )}
+          </div>
         </nav>
 
         {/* Search Bar */}
@@ -141,6 +219,34 @@ const Header = () => {
                 {item.label}
               </Link>
             ))}
+
+            {/* Mobile Categories */}
+            <div className="px-2 py-1">
+              <div className="text-sm font-medium text-gray-900 mb-2">
+                Categories
+              </div>
+              <div className="ml-2 space-y-1">
+                <Link
+                  href="/categories"
+                  className="flex items-center px-2 py-1 text-sm text-gray-600 hover:text-primary transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <span className="mr-2">📂</span>
+                  All Categories
+                </Link>
+                {categories.map((category) => (
+                  <Link
+                    key={category.href}
+                    href={category.href}
+                    className="flex items-center px-2 py-1 text-sm text-gray-600 hover:text-primary transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className="mr-2">{category.icon}</span>
+                    {category.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
           </nav>
         </div>
       </motion.div>

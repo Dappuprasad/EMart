@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { CartItem, Product } from "@/types";
+import { LocalCartItem, Product } from "@/types";
 
 interface CartStore {
-  items: CartItem[];
+  items: LocalCartItem[];
   addItem: (product: Product, quantity?: number) => void;
   removeItem: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;

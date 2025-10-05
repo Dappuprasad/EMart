@@ -187,7 +187,7 @@ const ProductDetailPage = () => {
             <div className="bg-white rounded-lg p-8 shadow-sm border sticky top-8">
               <div className="aspect-square relative mb-4">
                 <Image
-                  src={product.image}
+                  src={product.thumbnail}
                   alt={product.title}
                   fill
                   className="object-contain"
@@ -199,7 +199,7 @@ const ProductDetailPage = () => {
               <div className="flex gap-2 justify-center">
                 <div className="w-16 h-16 border-2 border-primary rounded-lg overflow-hidden">
                   <Image
-                    src={product.image}
+                    src={product.thumbnail}
                     alt={product.title}
                     width={64}
                     height={64}
@@ -230,7 +230,7 @@ const ProductDetailPage = () => {
                     <Star
                       key={i}
                       className={`w-4 h-4 ${
-                        i < Math.floor(product.rating.rate)
+                        i < Math.floor(product.rating)
                           ? "fill-current text-yellow-400"
                           : "text-gray-300"
                       }`}
@@ -238,7 +238,8 @@ const ProductDetailPage = () => {
                   ))}
                 </div>
                 <span className="text-sm text-gray-600">
-                  {product.rating.rate} ({product.rating.count} reviews)
+                  {product.rating.toFixed(1)} ({product.reviews?.length || 0}{" "}
+                  reviews)
                 </span>
               </div>
 
@@ -342,7 +343,7 @@ const ProductDetailPage = () => {
                   <Card className="group hover:shadow-lg transition-shadow">
                     <div className="aspect-square p-4 relative">
                       <Image
-                        src={relatedProduct.image}
+                        src={relatedProduct.thumbnail}
                         alt={relatedProduct.title}
                         fill
                         className="object-contain group-hover:scale-105 transition-transform"

@@ -1,95 +1,62 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Star,
-  ShoppingCart,
-  Heart,
-  Filter,
-  Search,
-  ChevronDown,
-} from "lucide-react";
+import { Star, ShoppingCart, Heart, ArrowLeft, Filter } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { productAPI } from "@/lib/api";
 import { useCartStore, useWishlistStore } from "@/lib/store";
 import { Product } from "@/types";
 
-const ProductsPage = () => {
-  const searchParams = useSearchParams();
+const CategoryPage = () => {
+  const params = useParams();
+  const router = useRouter();
+  const categoryName = decodeURIComponent(params.category as string);
+
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<
     "default" | "price-asc" | "price-desc" | "rating"
   >("default");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
 
   const addToCart = useCartStore((state) => state.addItem);
   const addToWishlist = useWishlistStore((state) => state.addItem);
   const isInWishlist = useWishlistStore((state) => state.isInWishlist);
 
-  // Handle URL parameters
   useEffect(() => {
-    const categoryFromUrl = searchParams.get("category");
-    if (categoryFromUrl) {
-      setSelectedCategory(categoryFromUrl);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    const fetchData = async () => {
+    const fetchCategoryProducts = async () => {
       try {
-        const [productsData, categoriesData] = await Promise.all([
-          productAPI.getProducts(),
-          productAPI.getCategories(),
-        ]);
-        setProducts(productsData);
-        setFilteredProducts(productsData);
-        setCategories(categoriesData);
-
-        // Calculate price range
-        const prices = productsData.map((p) => p.price);
-        const minPrice = Math.floor(Math.min(...prices));
-        const maxPrice = Math.ceil(Math.max(...prices));
-        setPriceRange([minPrice, maxPrice]);
+        const categoryProducts = await productAPI.getProductsByCategory(
+          categoryName
+        );
+        setProducts(categoryProducts);
+        setFilteredProducts(categoryProducts);
       } catch (error) {
-        console.error("Failed to fetch data:", error);
+        console.error("Failed to fetch category products:", error);
+        // If category doesn't exist, redirect to all products
+        router.push("/products");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    if (categoryName) {
+      fetchCategoryProducts();
+    }
+  }, [categoryName, router]);
 
   // Filter and sort products
   useEffect(() => {
     let filtered = [...products];
-
-    // Filter by category
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter(
-        (product) => product.category === selectedCategory
-      );
-    }
 
     // Filter by search query
     if (searchQuery) {
@@ -99,12 +66,6 @@ const ProductsPage = () => {
           product.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
-    // Filter by price range
-    filtered = filtered.filter(
-      (product) =>
-        product.price >= priceRange[0] && product.price <= priceRange[1]
-    );
 
     // Sort products
     switch (sortBy) {
@@ -122,7 +83,7 @@ const ProductsPage = () => {
     }
 
     setFilteredProducts(filtered);
-  }, [products, selectedCategory, sortBy, searchQuery, priceRange]);
+  }, [products, searchQuery, sortBy]);
 
   const handleAddToCart = (product: Product, e: React.MouseEvent) => {
     e.preventDefault();
@@ -136,14 +97,29 @@ const ProductsPage = () => {
     addToWishlist(product);
   };
 
+  const getCategoryIcon = (category: string) => {
+    switch (category.toLowerCase()) {
+      case "beauty":
+        return "💄";
+      case "fragrances":
+        return "🌸";
+      case "furniture":
+        return "🛋️";
+      case "groceries":
+        return "🛒";
+      default:
+        return "📦";
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-64 mb-8"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 12 }).map((_, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className="bg-white rounded-lg p-4">
                   <div className="bg-gray-200 h-48 rounded-lg mb-4"></div>
                   <div className="bg-gray-200 h-4 rounded mb-2"></div>
@@ -160,15 +136,34 @@ const ProductsPage = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Back Navigation */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="mb-6"
+        >
+          <Button variant="ghost" asChild>
+            <Link href="/categories">
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to Categories
+            </Link>
+          </Button>
+        </motion.div>
+
+        {/* Category Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="text-center mb-8"
         >
-          <h1 className="text-3xl font-bold mb-4">All Products</h1>
-          <p className="text-gray-600">
-            Discover our complete collection of {products.length} products
+          <div className="flex items-center justify-center mb-4">
+            <span className="text-4xl mr-3">
+              {getCategoryIcon(categoryName)}
+            </span>
+            <h1 className="text-4xl font-bold capitalize">{categoryName}</h1>
+          </div>
+          <p className="text-lg text-gray-600">
+            Discover our collection of {products.length} {categoryName} products
           </p>
         </motion.div>
 
@@ -179,36 +174,19 @@ const ProductsPage = () => {
           transition={{ delay: 0.1 }}
           className="bg-white rounded-lg shadow-sm border p-6 mb-8"
         >
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             {/* Search */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Search</label>
+              <label className="text-sm font-medium mb-2 block">
+                Search in {categoryName}
+              </label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
-                  placeholder="Search products..."
+                  placeholder={`Search ${categoryName} products...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
                 />
               </div>
-            </div>
-
-            {/* Category Filter */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">Category</label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-              >
-                <option value="all">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Sort */}
@@ -286,18 +264,30 @@ const ProductsPage = () => {
                         <Star className="w-3 h-3 fill-current text-yellow-400 mr-1" />
                         {product.rating.toFixed(1)}
                       </Badge>
+
+                      {/* Discount Badge */}
+                      {product.discountPercentage > 0 && (
+                        <Badge
+                          variant="destructive"
+                          className="absolute bottom-2 left-2"
+                        >
+                          -{Math.round(product.discountPercentage)}%
+                        </Badge>
+                      )}
                     </div>
                   </div>
 
                   <CardContent className="p-4">
                     <div className="space-y-3">
                       <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wide">
-                          {product.category}
-                        </p>
                         <h3 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
                           {product.title}
                         </h3>
+                        {product.brand && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            {product.brand}
+                          </p>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between">
@@ -313,6 +303,13 @@ const ProductsPage = () => {
                           Add
                         </Button>
                       </div>
+
+                      {/* Stock Info */}
+                      {product.stock < 10 && (
+                        <p className="text-xs text-orange-600">
+                          Only {product.stock} left in stock
+                        </p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -322,27 +319,39 @@ const ProductsPage = () => {
         </motion.div>
 
         {/* No Results */}
-        {filteredProducts.length === 0 && (
+        {filteredProducts.length === 0 && products.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="text-center py-12"
           >
-            <div className="text-gray-400 mb-4">
-              <Search className="w-16 h-16 mx-auto" />
-            </div>
+            <Filter className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">No products found</h3>
             <p className="text-gray-600 mb-6">
-              Try adjusting your filters or search terms
+              Try adjusting your search terms or browse all {categoryName}{" "}
+              products.
             </p>
-            <Button
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedCategory("all");
-                setSortBy("default");
-              }}
-            >
-              Clear Filters
+            <Button onClick={() => setSearchQuery("")}>Clear Search</Button>
+          </motion.div>
+        )}
+
+        {/* No Products in Category */}
+        {products.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <div className="text-6xl mb-4">{getCategoryIcon(categoryName)}</div>
+            <h3 className="text-xl font-semibold mb-2">
+              No products in this category
+            </h3>
+            <p className="text-gray-600 mb-6">
+              We're working on adding more {categoryName} products. Check back
+              soon!
+            </p>
+            <Button asChild>
+              <Link href="/products">Browse All Products</Link>
             </Button>
           </motion.div>
         )}
@@ -351,4 +360,4 @@ const ProductsPage = () => {
   );
 };
 
-export default ProductsPage;
+export default CategoryPage;

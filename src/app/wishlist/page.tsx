@@ -107,7 +107,7 @@ const WishlistPage = () => {
                   <div className="relative overflow-hidden">
                     <div className="aspect-square bg-white p-4 relative">
                       <Image
-                        src={product.image}
+                        src={product.thumbnail}
                         alt={product.title}
                         fill
                         className="object-contain group-hover:scale-105 transition-transform duration-300"

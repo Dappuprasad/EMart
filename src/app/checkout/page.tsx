@@ -339,7 +339,7 @@ const CheckoutPage = () => {
                     <div key={item.id} className="flex gap-3">
                       <div className="w-16 h-16 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0">
                         <Image
-                          src={item.product.image}
+                          src={item.product.thumbnail}
                           alt={item.product.title}
                           width={64}
                           height={64}

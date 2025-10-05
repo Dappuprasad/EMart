@@ -131,7 +131,7 @@ const FeaturedProducts = () => {
                   <div className="relative overflow-hidden">
                     <div className="aspect-square bg-white p-4 relative">
                       <Image
-                        src={product.image}
+                        src={product.thumbnail}
                         alt={product.title}
                         fill
                         className="object-contain group-hover:scale-105 transition-transform duration-300"
@@ -157,7 +157,7 @@ const FeaturedProducts = () => {
                       {/* Rating Badge */}
                       <Badge className="absolute top-2 left-2 bg-white/90 text-gray-800 border-0">
                         <Star className="w-3 h-3 fill-current text-yellow-400 mr-1" />
-                        {product.rating.rate}
+                        {product.rating.toFixed(1)}
                       </Badge>
                     </div>
                   </div>
